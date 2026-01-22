@@ -1,0 +1,32 @@
+[package]
+name = "tetris"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.70.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = "23.0.2"
+# Note: cougr-core dependency commented out as the library is under active development
+# In production, you would uncomment this to use the full ECS framework:
+# cougr-core = { tag = "v0.0.1", git = "https://github.com/salazarsebas/Cougr.git" }
+# This contract demonstrates the ECS patterns that cougr-core provides
+
+[dev-dependencies]
+soroban-sdk = { version = "23.0.2", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true
