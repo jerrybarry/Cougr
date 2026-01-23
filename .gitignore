@@ -1,0 +1,31 @@
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Soroban
+.soroban/
+*.wasm
+
+# Test artifacts
+test_snapshots/
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
