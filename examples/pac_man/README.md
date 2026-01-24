@@ -455,9 +455,9 @@ Collect all pellets (regular and power) to win.
 
 The contract has been successfully deployed to Stellar Testnet:
 
-**Contract ID**: `CAFNZL3TLTWROTHAOO6GSOT2AKQVB4HCSANAMZI3SPJST5CEF6K4TRTO`
+**Contract ID**: `CDWERKYRRWD5N6Q7RKCVWT7BNNS5ADRRTM2VCG45AYRE52ABP5NUBJ3C`
 
-**Explorer Link**: https://stellar.expert/explorer/testnet/contract/CAFNZL3TLTWROTHAOO6GSOT2AKQVB4HCSANAMZI3SPJST5CEF6K4TRTO
+**Explorer Link**: https://stellar.expert/explorer/testnet/contract/CDWERKYRRWD5N6Q7RKCVWT7BNNS5ADRRTM2VCG45AYRE52ABP5NUBJ3C
 
 ### Verified Invocations
 
