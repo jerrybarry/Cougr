@@ -1,8 +1,9 @@
-use soroban_sdk::{contracttype, Bytes, Env, Symbol, symbol_short};
+use soroban_sdk::{contracttype, symbol_short, Bytes, Env, Symbol};
 
 /// ComponentTrait from cougr-core
 /// Components must implement serialization for on-chain storage
 pub trait ComponentTrait {
+    #[allow(dead_code)]
     fn component_type() -> Symbol;
     fn serialize(&self, env: &Env) -> Bytes;
     fn deserialize(env: &Env, data: &Bytes) -> Option<Self>
@@ -35,7 +36,7 @@ impl ComponentTrait for BirdState {
         bytes
     }
 
-    fn deserialize(env: &Env, data: &Bytes) -> Option<Self> {
+    fn deserialize(_env: &Env, data: &Bytes) -> Option<Self> {
         if data.len() != 1 {
             return None;
         }
@@ -54,7 +55,10 @@ pub struct PipeConfig {
 
 impl PipeConfig {
     pub fn new(gap_size: i32, gap_center_y: i32) -> Self {
-        Self { gap_size, gap_center_y }
+        Self {
+            gap_size,
+            gap_center_y,
+        }
     }
 }
 
@@ -72,7 +76,7 @@ impl ComponentTrait for PipeConfig {
         bytes
     }
 
-    fn deserialize(env: &Env, data: &Bytes) -> Option<Self> {
+    fn deserialize(_env: &Env, data: &Bytes) -> Option<Self> {
         if data.len() != 8 {
             return None;
         }
@@ -88,7 +92,10 @@ impl ComponentTrait for PipeConfig {
             data.get(6).unwrap(),
             data.get(7).unwrap(),
         ]);
-        Some(Self { gap_size, gap_center_y })
+        Some(Self {
+            gap_size,
+            gap_center_y,
+        })
     }
 }
 
@@ -96,7 +103,7 @@ impl ComponentTrait for PipeConfig {
 #[contracttype]
 #[derive(Clone, Debug)]
 pub struct PipeMarker {
-    pub passed: bool,  // Has the bird passed this pipe?
+    pub passed: bool, // Has the bird passed this pipe?
 }
 
 impl PipeMarker {
@@ -117,7 +124,7 @@ impl ComponentTrait for PipeMarker {
         bytes
     }
 
-    fn deserialize(env: &Env, data: &Bytes) -> Option<Self> {
+    fn deserialize(_env: &Env, data: &Bytes) -> Option<Self> {
         if data.len() != 1 {
             return None;
         }

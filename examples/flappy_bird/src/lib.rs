@@ -1,13 +1,13 @@
 #![no_std]
 
 mod components;
-mod systems;
 mod simple_world;
+mod systems;
 
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Env, Vec};
 use components::{BirdState, ComponentTrait, PipeConfig, PipeMarker};
-use systems::{Position, Velocity};
 use simple_world::SimpleWorld;
+use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Env, Vec};
+use systems::{Position, Velocity};
 
 // Game constants
 const INIT_BIRD_X: i32 = 50;
@@ -46,7 +46,11 @@ impl FlappyBirdContract {
 
         world.add_component(bird_id, symbol_short!("position"), bird_pos.serialize(&env));
         world.add_component(bird_id, symbol_short!("velocity"), bird_vel.serialize(&env));
-        world.add_component(bird_id, symbol_short!("birdstate"), bird_state.serialize(&env));
+        world.add_component(
+            bird_id,
+            symbol_short!("birdstate"),
+            bird_state.serialize(&env),
+        );
 
         // Spawn initial pipes
         Self::spawn_pipe(&mut world, &env, SPAWN_X, 150);
@@ -63,8 +67,12 @@ impl FlappyBirdContract {
         };
 
         // Store in contract storage
-        env.storage().persistent().set(&symbol_short!("state"), &game_state);
-        env.storage().persistent().set(&symbol_short!("world"), &world);
+        env.storage()
+            .persistent()
+            .set(&symbol_short!("state"), &game_state);
+        env.storage()
+            .persistent()
+            .set(&symbol_short!("world"), &world);
     }
 
     /// Make the bird flap (jump)
@@ -97,7 +105,9 @@ impl FlappyBirdContract {
         }
 
         // Save world
-        env.storage().persistent().set(&symbol_short!("world"), &world);
+        env.storage()
+            .persistent()
+            .set(&symbol_short!("world"), &world);
     }
 
     /// Update game by one tick
@@ -148,8 +158,12 @@ impl FlappyBirdContract {
         Self::remove_offscreen_pipes(&mut world, &env);
 
         // Save state
-        env.storage().persistent().set(&symbol_short!("state"), &game_state);
-        env.storage().persistent().set(&symbol_short!("world"), &world);
+        env.storage()
+            .persistent()
+            .set(&symbol_short!("state"), &game_state);
+        env.storage()
+            .persistent()
+            .set(&symbol_short!("world"), &world);
     }
 
     /// Get current score
@@ -207,8 +221,16 @@ impl FlappyBirdContract {
         let pipe_marker = PipeMarker::new();
 
         world.add_component(pipe_id, symbol_short!("position"), pipe_pos.serialize(env));
-        world.add_component(pipe_id, symbol_short!("pipeconf"), pipe_config.serialize(env));
-        world.add_component(pipe_id, symbol_short!("pipemark"), pipe_marker.serialize(env));
+        world.add_component(
+            pipe_id,
+            symbol_short!("pipeconf"),
+            pipe_config.serialize(env),
+        );
+        world.add_component(
+            pipe_id,
+            symbol_short!("pipemark"),
+            pipe_marker.serialize(env),
+        );
     }
 
     fn remove_offscreen_pipes(world: &mut SimpleWorld, env: &Env) {
@@ -386,4 +408,3 @@ mod tests {
         assert_eq!(y1, y2);
     }
 }
-

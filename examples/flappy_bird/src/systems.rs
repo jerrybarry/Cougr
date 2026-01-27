@@ -1,6 +1,6 @@
-use soroban_sdk::{symbol_short, Env, Symbol, Bytes};
+use crate::components::{BirdState, ComponentTrait, PipeConfig, PipeMarker};
 use crate::simple_world::SimpleWorld;
-use crate::components::{ComponentTrait, BirdState, PipeConfig, PipeMarker};
+use soroban_sdk::{symbol_short, Bytes, Env, Symbol};
 
 // Define our own Position and Velocity types that match cougr-core's but with ComponentTrait
 #[derive(Clone, Debug)]
@@ -118,7 +118,11 @@ pub fn apply_gravity(world: &mut SimpleWorld, env: &Env) {
                 velocity.y += GRAVITY;
 
                 // Update component
-                world.add_component(entity_id, symbol_short!("velocity"), velocity.serialize(env));
+                world.add_component(
+                    entity_id,
+                    symbol_short!("velocity"),
+                    velocity.serialize(env),
+                );
             }
         }
     }
@@ -135,18 +139,22 @@ pub fn update_positions(world: &mut SimpleWorld, env: &Env) {
         if world.has_component(entity_id, &symbol_short!("position")) {
             if let (Some(pos_data), Some(vel_data)) = (
                 world.get_component(entity_id, &symbol_short!("position")),
-                world.get_component(entity_id, &symbol_short!("velocity"))
+                world.get_component(entity_id, &symbol_short!("velocity")),
             ) {
                 if let (Some(mut position), Some(velocity)) = (
                     Position::deserialize(env, &pos_data),
-                    Velocity::deserialize(env, &vel_data)
+                    Velocity::deserialize(env, &vel_data),
                 ) {
                     // Update position
                     position.x += velocity.x;
                     position.y += velocity.y;
 
                     // Update component
-                    world.add_component(entity_id, symbol_short!("position"), position.serialize(env));
+                    world.add_component(
+                        entity_id,
+                        symbol_short!("position"),
+                        position.serialize(env),
+                    );
                 }
             }
         }
@@ -166,7 +174,11 @@ pub fn move_pipes(world: &mut SimpleWorld, env: &Env) {
                 position.x -= PIPE_SPEED;
 
                 // Update component
-                world.add_component(entity_id, symbol_short!("position"), position.serialize(env));
+                world.add_component(
+                    entity_id,
+                    symbol_short!("position"),
+                    position.serialize(env),
+                );
             }
         }
     }
@@ -194,7 +206,11 @@ pub fn check_collisions(world: &mut SimpleWorld, env: &Env) -> bool {
         if let Some(state_data) = world.get_component(bird_id, &symbol_short!("birdstate")) {
             if let Some(mut bird_state) = BirdState::deserialize(env, &state_data) {
                 bird_state.is_alive = false;
-                world.add_component(bird_id, symbol_short!("birdstate"), bird_state.serialize(env));
+                world.add_component(
+                    bird_id,
+                    symbol_short!("birdstate"),
+                    bird_state.serialize(env),
+                );
                 return true;
             }
         }
@@ -205,7 +221,11 @@ pub fn check_collisions(world: &mut SimpleWorld, env: &Env) -> bool {
         if let Some(state_data) = world.get_component(bird_id, &symbol_short!("birdstate")) {
             if let Some(mut bird_state) = BirdState::deserialize(env, &state_data) {
                 bird_state.is_alive = false;
-                world.add_component(bird_id, symbol_short!("birdstate"), bird_state.serialize(env));
+                world.add_component(
+                    bird_id,
+                    symbol_short!("birdstate"),
+                    bird_state.serialize(env),
+                );
                 return true;
             }
         }
@@ -218,26 +238,32 @@ pub fn check_collisions(world: &mut SimpleWorld, env: &Env) -> bool {
 
         if let (Some(pipe_pos_data), Some(pipe_config_data)) = (
             world.get_component(pipe_id, &symbol_short!("position")),
-            world.get_component(pipe_id, &symbol_short!("pipeconf"))
+            world.get_component(pipe_id, &symbol_short!("pipeconf")),
         ) {
             if let (Some(pipe_pos), Some(pipe_config)) = (
                 Position::deserialize(env, &pipe_pos_data),
-                PipeConfig::deserialize(env, &pipe_config_data)
+                PipeConfig::deserialize(env, &pipe_config_data),
             ) {
                 // Check if bird is within pipe's x range
-                if bird_pos.x + BIRD_SIZE > pipe_pos.x &&
-                   bird_pos.x - BIRD_SIZE < pipe_pos.x + PIPE_WIDTH {
+                if bird_pos.x + BIRD_SIZE > pipe_pos.x
+                    && bird_pos.x - BIRD_SIZE < pipe_pos.x + PIPE_WIDTH
+                {
                     // Check if bird is outside the gap
                     let gap_top = pipe_config.gap_center_y - pipe_config.gap_size / 2;
                     let gap_bottom = pipe_config.gap_center_y + pipe_config.gap_size / 2;
 
-                    if bird_pos.y - BIRD_SIZE < gap_top ||
-                       bird_pos.y + BIRD_SIZE > gap_bottom {
+                    if bird_pos.y - BIRD_SIZE < gap_top || bird_pos.y + BIRD_SIZE > gap_bottom {
                         // Collision with pipe
-                        if let Some(state_data) = world.get_component(bird_id, &symbol_short!("birdstate")) {
+                        if let Some(state_data) =
+                            world.get_component(bird_id, &symbol_short!("birdstate"))
+                        {
                             if let Some(mut bird_state) = BirdState::deserialize(env, &state_data) {
                                 bird_state.is_alive = false;
-                                world.add_component(bird_id, symbol_short!("birdstate"), bird_state.serialize(env));
+                                world.add_component(
+                                    bird_id,
+                                    symbol_short!("birdstate"),
+                                    bird_state.serialize(env),
+                                );
                                 return true;
                             }
                         }
@@ -276,11 +302,11 @@ pub fn update_score(world: &mut SimpleWorld, env: &Env) -> u32 {
 
         if let (Some(marker_data), Some(pos_data)) = (
             world.get_component(pipe_id, &symbol_short!("pipemark")),
-            world.get_component(pipe_id, &symbol_short!("position"))
+            world.get_component(pipe_id, &symbol_short!("position")),
         ) {
             if let (Some(mut marker), Some(pipe_pos)) = (
                 PipeMarker::deserialize(env, &marker_data),
-                Position::deserialize(env, &pos_data)
+                Position::deserialize(env, &pos_data),
             ) {
                 // If bird passed pipe and it wasn't marked yet
                 if !marker.passed && bird_x > pipe_pos.x + PIPE_WIDTH {

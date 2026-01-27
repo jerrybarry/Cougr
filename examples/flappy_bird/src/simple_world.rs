@@ -1,6 +1,4 @@
-use soroban_sdk::{contracttype, Env, Symbol, Vec, Bytes, symbol_short};
-use crate::components::{ComponentTrait, BirdState, PipeConfig, PipeMarker};
-use crate::systems::{Position, Velocity};
+use soroban_sdk::{contracttype, Bytes, Env, Symbol, Vec};
 
 /// Simple entity ID
 pub type EntityId = u32;
