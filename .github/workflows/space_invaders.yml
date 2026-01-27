@@ -1,0 +1,111 @@
+name: Space Invaders CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'examples/space_invaders/**'
+      - '.github/workflows/space_invaders.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'examples/space_invaders/**'
+      - '.github/workflows/space_invaders.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Check & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          target: wasm32-unknown-unknown
+
+      - name: Check formatting
+        run: cargo fmt --check
+        working-directory: examples/space_invaders
+
+      - name: Run Clippy
+        run: cargo clippy -- -D warnings
+        working-directory: examples/space_invaders
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build Rust project
+        run: cargo build --release --verbose
+        working-directory: examples/space_invaders
+
+      - name: Install Stellar CLI
+        run: cargo install stellar-cli --locked
+
+      - name: Build Soroban contract
+        run: stellar contract build --verbose
+        working-directory: examples/space_invaders
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: space_invaders_wasm
+          path: examples/space_invaders/target/wasm32-unknown-unknown/release/space_invaders.wasm
+          if-no-files-found: error
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run tests
+        run: cargo test --verbose
+        working-directory: examples/space_invaders
