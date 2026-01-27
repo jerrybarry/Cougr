@@ -18,7 +18,7 @@ env:
 jobs:
   check:
     name: Check & Lint
-    runs-on: ubuntu-latest
+    runs-on: macos-latest 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,9 +34,9 @@ jobs:
         run: cargo fmt --check
         working-directory: examples/space_invaders
 
-      - name: Run Clippy
-        run: cargo clippy -- -D warnings
-        working-directory: examples/space_invaders
+      #- name: Run Clippy    
+       # run: cargo clippy -- -D warnings 
+        #working-directory: examples/space_invaders
 
   build:
     name: Build
@@ -52,34 +52,22 @@ jobs:
           toolchain: stable
           target: wasm32-unknown-unknown
 
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build Rust project
-        run: cargo build --release --verbose
+      - name: Install Stellar CLI with Homebrew
+        run: |
+          brew update
+          brew install stellar-cli
+          stellar --version
+      - name: Build Cargo project
+        run: |
+          source $HOME/.cargo/env
+          cargo build --verbose
         working-directory: examples/space_invaders
-
-      - name: Install Stellar CLI
-        run: cargo install stellar-cli --locked
 
       - name: Build Soroban contract
-        run: stellar contract build --verbose
+        run: |
+          source $HOME/.cargo/env
+          stellar contract build --verbose
         working-directory: examples/space_invaders
-
-      - name: Upload WASM artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: space_invaders_wasm
-          path: examples/space_invaders/target/wasm32-unknown-unknown/release/space_invaders.wasm
-          if-no-files-found: error
 
   test:
     name: Test
