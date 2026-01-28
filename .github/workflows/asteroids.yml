@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -26,7 +26,7 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -40,7 +40,7 @@ jobs:
         run: cargo build
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -54,21 +54,25 @@ jobs:
         run: cargo test
 
   soroban:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: examples/asteroids
-      - name: install system deps
-        run: sudo apt-get update && sudo apt-get install -y libdbus-1-dev libudev-dev pkg-config
-      - name: install Stellar CLI
-        run: cargo install stellar-cli --locked
-      - name: add wasm target
-        run: rustup target add wasm32-unknown-unknown
-      - name: stellar contract build
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+      - name: Install Rust target for Soroban
+        run: |
+          source $HOME/.cargo/env
+          rustup target add wasm32v1-none
+      - name: Install Stellar CLI with Homebrew
+        run: |
+          brew update
+          brew install stellar-cli
+          stellar --version
+      - name: Build Soroban contract
+        run: |
+          source $HOME/.cargo/env
+          stellar contract build --verbose
         working-directory: examples/asteroids
-        run: stellar contract build
