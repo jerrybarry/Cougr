@@ -13,7 +13,7 @@ on:
 jobs:
   onchain-checks:
     name: Test Suite
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     defaults:
       run:
         # This ensures every command runs inside your bomberman folder
@@ -41,9 +41,70 @@ jobs:
     - name: Run clippy
       run: cargo clippy --all-targets --all-features -- -D warnings
 
-    - name: Build WASM
+    - name: Install Stellar CLI with Homebrew
+      run: |
+        brew update
+        brew install stellar-cli
+        stellar --version
+
+    - name: Build WASM (cargo)
       run: cargo build --target wasm32-unknown-unknown --release
+
+    - name: Build Soroban contract (stellar contract build)
+      run: stellar contract build --verbose
 
     - name: Run tests
       run: cargo test
       continue-on-error: true
+
+  deploy-testnet:
+    name: Deploy to Testnet
+    runs-on: macos-latest
+    needs: onchain-checks
+    if: github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: ./examples/bomberman
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+
+      - name: Install Stellar CLI with Homebrew
+        run: |
+          brew update
+          brew install stellar-cli
+          stellar --version
+
+      - name: Build contract
+        run: |
+          cargo build --target wasm32-unknown-unknown --release
+          stellar contract build --verbose
+
+      - name: Deploy contract to Testnet
+        id: deploy
+        env:
+          STELLAR_SECRET_KEY: ${{ secrets.STELLAR_SECRET_KEY }}
+        run: |
+          set -e
+          WASM=target/wasm32-unknown-unknown/release/bomberman.wasm
+          echo "WASM path: $WASM"
+          DEPLOY_OUTPUT=$(stellar contract deploy \
+            --wasm "$WASM" \
+            --network testnet \
+            --source "$STELLAR_SECRET_KEY" 2>&1 | tee deploy.log)
+          # Attempt to extract contract id (looks like CA...)
+          CONTRACT_ID=$(echo "$DEPLOY_OUTPUT" | grep -Eo 'C[A-Z0-9]{55,}' | head -n1 || true)
+          echo "Contract ID: $CONTRACT_ID"
+          echo "contract_id=$CONTRACT_ID" >> $GITHUB_OUTPUT
+
+      - name: Upload deployment logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: bomberman-deploy-logs
+          path: examples/bomberman/deploy.log
