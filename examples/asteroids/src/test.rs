@@ -95,7 +95,10 @@ fn test_asteroid_split_and_score() {
     client.init_game();
     let mut state = get_state(&env, &contract_id);
     let asteroid = Asteroid {
-        position: Vec2 { x: 100 * SCALE, y: 100 * SCALE },
+        position: Vec2 {
+            x: 100 * SCALE,
+            y: 100 * SCALE,
+        },
         velocity: Vec2 { x: 0, y: 0 },
         size: 2,
     };
