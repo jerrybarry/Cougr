@@ -22,6 +22,7 @@ impl Position {
     }
 
     /// Convert to a cougr-core Component for storage
+    #[allow(dead_code)]
     pub fn to_component(&self, env: &Env) -> Component {
         Component::new(Self::component_type(), self.serialize(env))
     }
@@ -134,6 +135,7 @@ impl DirectionComponent {
     }
 
     /// Convert to a cougr-core Component for storage
+    #[allow(dead_code)]
     pub fn to_component(&self, env: &Env) -> Component {
         Component::new(Self::component_type(), self.serialize(env))
     }
@@ -172,6 +174,7 @@ pub struct SnakeHead;
 
 impl SnakeHead {
     /// Convert to a cougr-core Component for storage
+    #[allow(dead_code)]
     pub fn to_component(&self, env: &Env) -> Component {
         Component::new(Self::component_type(), self.serialize(env))
     }
@@ -213,6 +216,7 @@ impl SnakeSegment {
     }
 
     /// Convert to a cougr-core Component for storage
+    #[allow(dead_code)]
     pub fn to_component(&self, env: &Env) -> Component {
         Component::new(Self::component_type(), self.serialize(env))
     }
@@ -255,6 +259,7 @@ pub struct Food;
 
 impl Food {
     /// Convert to a cougr-core Component for storage
+    #[allow(dead_code)]
     pub fn to_component(&self, env: &Env) -> Component {
         Component::new(Self::component_type(), self.serialize(env))
     }
