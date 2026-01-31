@@ -212,7 +212,7 @@ examples/pokemon_mini/
 | Soroban Docs | [developers.stellar.org](https://developers.stellar.org/docs/build/smart-contracts) |
 | Stellar CLI | [CLI Documentation](https://developers.stellar.org/docs/tools/cli) |
 | Cougr Repository | [github.com/salazarsebas/Cougr](https://github.com/salazarsebas/Cougr) |
-| Issue #14 | [GitHub Issue](https://github.com/salazarsebas/Cougr/issues/14) |
+
 
 ---
 
