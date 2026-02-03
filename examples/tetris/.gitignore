@@ -1,3 +1,4 @@
-target/
-**/*.rs.bk
+/target
 test_snapshots/
+*.wasm
+Cargo.lock
